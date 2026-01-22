@@ -1,5 +1,5 @@
 
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { ErrorInfo, ReactNode } from 'react';
 
 interface Props {
   // Making children optional resolves "Property 'children' is missing in type '{}'" errors in App.tsx,
@@ -16,17 +16,16 @@ interface State {
  * ErrorBoundary catches JavaScript errors anywhere in its child component tree,
  * logs those errors, and displays a fallback UI instead of the component tree that crashed.
  */
-// Use React.Component to ensure 'props' and 'state' are correctly inherited and recognized by the TypeScript compiler
+// Explicitly using React.Component to ensure the compiler recognizes inherited properties like props and state.
 class ErrorBoundary extends React.Component<Props, State> {
-  // Explicitly declare state to resolve "Property 'state' does not exist on type 'ErrorBoundary'" errors.
-  public state: State;
+  // Explicitly declaring state as a property to fix: Property 'state' does not exist on type 'ErrorBoundary'.
+  public state: State = {
+    hasError: false
+  };
 
   constructor(props: Props) {
     super(props);
-    // Initialize state in the constructor to ensure it's available for tracking error status.
-    this.state = {
-      hasError: false
-    };
+    // State is initialized above in the class field to ensure it is visible to the compiler.
   }
 
   public static getDerivedStateFromError(error: Error): State {
@@ -39,7 +38,7 @@ class ErrorBoundary extends React.Component<Props, State> {
   }
 
   public render(): ReactNode {
-    // Correctly accessing 'this.state' which is inherited from React.Component
+    // Accessing this.state which is now explicitly declared and inherited correctly.
     if (this.state.hasError) {
       return (
         <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-slate-950 text-white font-sans text-center relative z-[1000]">
@@ -71,8 +70,7 @@ class ErrorBoundary extends React.Component<Props, State> {
       );
     }
 
-    // Return the child components if no error occurred.
-    // 'this.props' is now correctly recognized as inherited from React.Component.
+    // Returning children property; this.props is now correctly recognized due to React.Component inheritance.
     return this.props.children;
   }
 }

@@ -4,33 +4,34 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 
 /**
- * Initializes the React application.
+ * Main entry point for the React application.
+ * Using a direct, standard initialization flow for production reliability.
  */
-const mountApplication = () => {
-  try {
-    const rootElement = document.getElementById('root');
-    if (!rootElement) {
-      console.error("Critical DOM Element Missing: Could not find '#root' target.");
-      return;
-    }
+const mount = () => {
+  const container = document.getElementById('root');
+  if (!container) {
+    console.error("Target container #root not found.");
+    return;
+  }
 
-    const root = ReactDOM.createRoot(rootElement);
+  try {
+    const root = ReactDOM.createRoot(container);
     root.render(
       <React.StrictMode>
         <App />
       </React.StrictMode>
     );
-    
-    console.debug("React render initiated.");
-  } catch (err) {
-    // We log but don't block. ErrorBoundary in App.tsx handles runtime failures.
-    console.error("Mounting failure:", err);
+  } catch (error) {
+    console.error("Failed to render React application:", error);
+    // Ensure visibility even on render failure
+    const loader = document.getElementById('root-loading');
+    if (loader) loader.classList.add('loading-hidden');
   }
 };
 
-// Mount when ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', mountApplication);
+// Mount immediately if the DOM is already parsed, or wait for the event.
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  mount();
 } else {
-  mountApplication();
+  document.addEventListener('DOMContentLoaded', mount);
 }

@@ -15,18 +15,18 @@
             min-height: 100vh;
             margin: 0;
             overflow: hidden;
-            background: #0f172a; /* Immediate dark background to prevent white flash */
+            background-color: #0f172a; /* Fallback for production loading */
             transition: background 0.5s ease-in-out;
         }
         * {
             -webkit-tap-highlight-color: transparent;
         }
-        /* Remove focus outline for non-keyboard users to prevent "stuck" focus appearance on mobile */
         button:focus:not(:focus-visible) {
             outline: none;
         }
         .glass-container {
             backdrop-filter: blur(40px) saturate(220%);
+            -webkit-backdrop-filter: blur(40px) saturate(220%);
             transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
@@ -38,16 +38,15 @@
             box-shadow: 0 0 40px -10px rgba(99, 102, 241, 0.15), inset 0 0 20px rgba(255, 255, 255, 0.5);
         }
 
-        /* Animated Neon Gradient Background */
         .neon-bg {
-            background: linear-gradient(-45deg, #4f46e5, #7c3aed, #db2777, #4338ca);
-            background-size: 400% 400%;
+            background: linear-gradient(-45deg, #4f46e5, #7c3aed, #db2777, #4338ca) !important;
+            background-size: 400% 400% !important;
             animation: gradient-shift 15s ease infinite;
         }
 
         .neon-bg-light {
-            background: linear-gradient(-45deg, #dbeafe, #ede9fe, #fdf2f8, #dbeafe);
-            background-size: 400% 400%;
+            background: linear-gradient(-45deg, #dbeafe, #ede9fe, #fdf2f8, #dbeafe) !important;
+            background-size: 400% 400% !important;
             animation: gradient-shift 15s ease infinite;
         }
 
@@ -57,7 +56,6 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* Failsafe UI elements */
         #root-loading {
             position: fixed;
             inset: 0;
@@ -68,30 +66,14 @@
             z-index: 9999;
             background: #0f172a;
             opacity: 1;
-            transition: opacity 0.5s ease-out;
-            pointer-events: none; /* Never block interactions if the app mounts underneath */
+            transition: opacity 0.4s ease-out, visibility 0.4s;
+            pointer-events: none;
         }
 
-        #error-overlay {
-            display: none;
-            position: fixed;
-            bottom: 1rem;
-            left: 1rem;
-            right: 1rem;
-            background: rgba(15, 23, 42, 0.9);
-            color: #f87171;
-            padding: 1.5rem;
-            z-index: 10000;
-            font-family: 'JetBrains Mono', monospace;
-            border-radius: 1rem;
-            border: 1px solid rgba(248, 113, 113, 0.3);
-            backdrop-filter: blur(10px);
-            max-height: 30vh;
-            overflow: auto;
+        .loading-hidden {
+            opacity: 0 !important;
+            visibility: hidden !important;
         }
-        
-        #error-overlay h2 { font-weight: bold; font-size: 1rem; margin-bottom: 0.5rem; color: white; }
-        #error-overlay pre { background: #000; padding: 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; margin-top: 0.5rem; }
 
         @keyframes loading {
             0% { width: 0%; transform: translateX(-100%); }
@@ -111,34 +93,26 @@
 }
 </script>
 <script>
-    // Universal Loading Failsafe
     function hideLoadingScreen() {
-        var loader = document.getElementById('root-loading');
-        if (loader && loader.style.opacity !== '0') {
-            loader.style.opacity = '0';
-            setTimeout(function() {
+        const loader = document.getElementById('root-loading');
+        if (loader) {
+            loader.classList.add('loading-hidden');
+            // Clean up DOM after transition
+            setTimeout(() => {
                 if (loader.parentNode) loader.parentNode.removeChild(loader);
-            }, 500);
+            }, 600);
         }
     }
 
-    // Global synchronous error listener - purely for logging, not blocking
+    // Production failsafe: If the app hasn't initialized in 2 seconds, 
+    // force hide the loader so the user can see whatever has rendered.
+    setTimeout(hideLoadingScreen, 2000);
+
     window.onerror = function(msg, url, lineNo, columnNo, error) {
-        console.error('Global Error caught:', msg, 'at', url, ':', lineNo);
-        // We only show the overlay if it's a critical error that might need debugging,
-        // but we don't hide the main UI.
+        console.error('Critical initialization error:', msg);
+        hideLoadingScreen();
         return false;
     };
-
-    window.addEventListener('unhandledrejection', function(event) {
-        console.error('Unhandled async rejection:', event.reason);
-    });
-
-    // If the app hasn't cleared the loading screen in 3 seconds, force it.
-    // 3 seconds is enough for core logic to start.
-    setTimeout(function() {
-        hideLoadingScreen();
-    }, 3000);
 </script>
 </head>
 <body class="neon-bg">
@@ -151,6 +125,5 @@
             </div>
         </div>
     </div>
-    <div id="error-overlay"></div>
 </body>
 </html>

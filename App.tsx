@@ -8,15 +8,10 @@ const App: React.FC = () => {
   const [theme, setTheme] = useState<Theme>('dark');
 
   useEffect(() => {
-    // Hide loading screen as soon as the component is mounted
+    // Hide loading screen as soon as the main App component is mounted and ready.
     const loader = document.getElementById('root-loading');
     if (loader) {
-      loader.style.opacity = '0';
-      setTimeout(() => {
-        if (loader && loader.parentNode) {
-          loader.parentNode.removeChild(loader);
-        }
-      }, 500);
+      loader.classList.add('loading-hidden');
     }
   }, []);
 
@@ -28,7 +23,7 @@ const App: React.FC = () => {
 
   return (
     <ErrorBoundary>
-      <main className={`relative w-screen h-screen overflow-hidden transition-colors duration-500`}>
+      <main className="relative w-screen h-screen overflow-hidden transition-colors duration-500">
         {/* Animated Neon Gradient Background Layer */}
         <div className={`fixed inset-0 pointer-events-none transition-all duration-700 ${bgClass}`}></div>
         
