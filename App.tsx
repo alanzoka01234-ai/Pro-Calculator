@@ -8,20 +8,16 @@ const App: React.FC = () => {
   const [theme, setTheme] = useState<Theme>('dark');
 
   useEffect(() => {
-    // Hide loading screen once the app is mounted
-    const hideLoader = () => {
-      const loader = document.getElementById('root-loading');
-      if (loader) {
-        loader.style.opacity = '0';
-        setTimeout(() => {
-          if (loader.parentNode) loader.parentNode.removeChild(loader);
-        }, 500);
-      }
-    };
-
-    // Use a small delay to ensure initial paint is complete
-    const timeoutId = setTimeout(hideLoader, 100);
-    return () => clearTimeout(timeoutId);
+    // Hide loading screen as soon as the component is mounted
+    const loader = document.getElementById('root-loading');
+    if (loader) {
+      loader.style.opacity = '0';
+      setTimeout(() => {
+        if (loader && loader.parentNode) {
+          loader.parentNode.removeChild(loader);
+        }
+      }, 500);
+    }
   }, []);
 
   const toggleTheme = () => {

@@ -10,7 +10,8 @@ const mountApplication = () => {
   try {
     const rootElement = document.getElementById('root');
     if (!rootElement) {
-      throw new Error("Critical DOM Element Missing: Could not find '#root' target.");
+      console.error("Critical DOM Element Missing: Could not find '#root' target.");
+      return;
     }
 
     const root = ReactDOM.createRoot(rootElement);
@@ -22,12 +23,8 @@ const mountApplication = () => {
     
     console.debug("React render initiated.");
   } catch (err) {
-    console.error("Initialization failure:", err);
-    const overlay = document.getElementById('error-overlay');
-    if (overlay) {
-      overlay.style.display = 'block';
-      overlay.innerHTML += `<p><strong>React Initialization Failed:</strong> ${err instanceof Error ? err.message : String(err)}</p>`;
-    }
+    // We log but don't block. ErrorBoundary in App.tsx handles runtime failures.
+    console.error("Mounting failure:", err);
   }
 };
 
