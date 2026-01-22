@@ -19,8 +19,12 @@ const Calculator: React.FC<CalculatorProps> = ({ theme, onToggleTheme }) => {
   const [showEasterEgg, setShowEasterEgg] = useState(false);
 
   const vibrate = () => {
-    if ('vibrate' in navigator) {
-      navigator.vibrate(10);
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      try {
+        navigator.vibrate(10);
+      } catch (e) {
+        // Silently fail if vibration is blocked or unsupported
+      }
     }
   };
 
@@ -155,7 +159,6 @@ const Calculator: React.FC<CalculatorProps> = ({ theme, onToggleTheme }) => {
   }, [handleNumber, handleOperator, calculate, handleClear, handleBackspace, handleDecimal]);
 
   const containerBg = theme === 'dark' ? 'bg-slate-950/60' : 'bg-white/50';
-  const borderColor = theme === 'dark' ? 'border-white/10' : 'border-black/5';
   const glowClass = theme === 'dark' ? 'neon-glow-dark' : 'neon-glow-light';
 
   return (
@@ -228,6 +231,7 @@ const Calculator: React.FC<CalculatorProps> = ({ theme, onToggleTheme }) => {
               autoPlay
               controls
               loop
+              playsInline
             />
           </div>
         </div>
